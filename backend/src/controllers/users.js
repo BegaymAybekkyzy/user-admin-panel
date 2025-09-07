@@ -50,7 +50,7 @@ export const login = async (req, res, next) => {
       id: user.id,
       username: user.username,
     };
-    res.json({ user: safeUser, accessToken });
+    res.send({ user: safeUser, accessToken });
   } catch (error) {
     next(error);
   }
