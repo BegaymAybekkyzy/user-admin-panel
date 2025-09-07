@@ -1,3 +1,5 @@
+export const REFRESH_EXPIRES_IN_DAYS = 7;
+
 const config = {
   db: {
     host: process.env.DB_HOST || 'localhost',
@@ -9,7 +11,7 @@ const config = {
     accessSecret: process.env.JWT_ACCESS_SECRET || 'default_access_secret',
     refreshSecret: process.env.JWT_REFRESH_SECRET || 'default_refresh_secret',
     accessExpiresIn: '15m',
-    refreshExpiresIn: '7d',
+    refreshExpiresIn: `${REFRESH_EXPIRES_IN_DAYS}d`,
   },
 };
 

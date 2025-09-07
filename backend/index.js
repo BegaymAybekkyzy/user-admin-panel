@@ -1,7 +1,7 @@
 import express from 'express';
-import mysqlDb from './db/mysqlDb.js';
+import mysqlDb from './src/db/mysqlDb.js';
 import cors from 'cors';
-import userRouter from './routers/users.js';
+import userRouter from './src/routers/users.js';
 
 const app = express();
 const port = 8000;
