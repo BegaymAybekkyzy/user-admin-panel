@@ -47,10 +47,46 @@ export const login = async (req, res, next) => {
     );
 
     const safeUser = {
-      id: user.id,
       username: user.username,
+      role: user.role,
+      first_name: user.first_name,
     };
     res.send({ user: safeUser, accessToken });
+  } catch (error) {
+    next(error);
+  }
+};
+
+export const refresh = async (req, res, next) => {
+  try {
+    const refreshToken = req.cookies.refreshToken;
+    if (!refreshToken) {
+      res.status(401).send({ error: 'No refresh token provided' });
+      return;
+    }
+
+    const pool = await mysqlDb.getConnection();
+    const [rows] = await pool.query(
+      'SELECT * FROM users WHERE refresh_token = ? AND refresh_expires_at > NOW() LIMIT 1',
+      [refreshToken],
+    );
+
+    if (rows.length === 0) {
+      res.status(401).send({ error: 'Invalid or expired refresh token' });
+      return;
+    }
+
+    const user = rows[0];
+    try {
+      jwt.verify(refreshToken, config.jwt.refreshSecret);
+    } catch {
+      res.status(401).send({ error: 'Invalid refresh token' });
+      return;
+    }
+
+    const newAccessToken = generateAccessToken(user);
+
+    res.send({ accessToken: newAccessToken });
   } catch (error) {
     next(error);
   }
