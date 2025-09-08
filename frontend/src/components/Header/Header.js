@@ -1,4 +1,5 @@
-import {logout} from "../actions/users.js";
+import {logout} from "../../actions/users.js";
+import "./Header.css"
 
 const Header = () => {
     const header = document.createElement("header");

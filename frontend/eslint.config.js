@@ -35,10 +35,6 @@ export default defineConfig([
           ignoreReadBeforeAssign: false
         }
       ],
-      "import/extensions": ["error", "ignorePackages", {
-        "js": "always",
-        "json": "always"
-      }],
       "eqeqeq": ["error", "always"],
       "no-trailing-spaces": "error",
       "keyword-spacing": ["error", { before: true, after: true }],

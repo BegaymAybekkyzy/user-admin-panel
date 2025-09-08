@@ -7,10 +7,15 @@
 body {
   font-family: "Roboto", sans-serif;
   margin: 0;
-  color: #fff;
+  color: #000000;
   background: #fff;
   line-height: 1.28;
   font-size: 20px;
+}
+
+button {
+  padding: 8px 12px;
+  border-radius: 5px;
 }
 
 .container {
@@ -19,58 +24,6 @@ body {
   margin-left: auto;
   padding-right: 20px;
   padding-left: 20px;
-}
-
-.header {
-  background: #1e293b;
-  padding: 20px 0;
-}
-.header-title {
-  color: white;
-  font-size: 1.5rem;
-  font-weight: bold;
-  text-decoration: none;
-}
-
-.header-container {
-  display: flex;
-  justify-content: space-between;
-  align-items: center;
-}
-
-.user-menu {
-  position: relative;
-}
-
-.user-button {
-  background: transparent;
-  border: none;
-  color: #fff;
-  font-size: 18px;
-  cursor: pointer;
-}
-
-.dropdown {
-  position: absolute;
-  right: 0;
-  top: 100%;
-  background: #222;
-  border: 1px solid #444;
-  list-style: none;
-  margin: 0;
-  padding: 5px 0;
-  min-width: 120px;
-  z-index: 100;
-}
-
-.dropdown li {
-  padding: 8px 12px;
-  cursor: pointer;
-  color: #fff;
-}
-
-.dropdown li:hover {
-  background: #333;
 }
 
 .hidden {
@@ -83,21 +36,4 @@ body {
   clear: both;
 }
 
-.login-form {
-  max-width: 300px;
-  margin: 100px auto;
-  display: flex;
-  flex-direction: column;
-  gap: 10px;
-}
 
-.login-form input {
-  padding: 8px;
-  font-size: 1rem;
-}
-
-.login-form button {
-  padding: 8px;
-  font-size: 1rem;
-  cursor: pointer;
-}

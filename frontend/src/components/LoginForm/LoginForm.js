@@ -1,4 +1,5 @@
-import { login } from "../actions/users.js";
+import { login } from "../../actions/users.js";
+import "./LoginForm.css";
 
 const LoginForm = () => {
     const form = document.createElement("form");

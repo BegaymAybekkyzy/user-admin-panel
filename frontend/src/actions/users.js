@@ -1,16 +1,14 @@
-import { apiFetch } from "../utils/apiFetch.js";
+import kyAPI from "../utils/kyApi.js";
+
 
 export const login = async ({ username, password }) => {
     try {
-        const res = await apiFetch.post("users/login", { username, password });
-
-        if (!res.ok) {
-            console.error("Login failed:", res.status);
-            return null;
-        }
+        const res = await kyAPI.post("users/login", {
+            json: { username, password }
+        });
 
         const { user, accessToken } = await res.json();
-        localStorage.setItem("user", JSON.stringify({...user, accessToken}));
+        localStorage.setItem("user", JSON.stringify({ ...user, accessToken }));
 
         return user;
     } catch (err) {
@@ -21,17 +19,23 @@ export const login = async ({ username, password }) => {
 
 export const logout = async () => {
     try {
-        const res = await apiFetch.delete("users/logout");
-
-        if (!res.ok) {
-            console.error("Logout failed:", res.status);
-            return null;
-        }
-
-        localStorage.removeItem("user");
-        return true;
+        await kyAPI.delete("users/logout");
     } catch (err) {
         console.error("Logout error:", err);
+    }
+    localStorage.removeItem("user");
+    return true;
+};
+
+export const refreshAccessToken = async () => {
+    try {
+        const res = await kyAPI.post("users/refresh");
+        if (!res.ok) return null;
+
+        const { accessToken } = await res.json();
+        return accessToken;
+    } catch (err) {
+        console.error("Refresh token error:", err);
         return null;
     }
 };
