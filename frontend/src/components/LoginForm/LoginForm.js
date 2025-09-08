@@ -39,7 +39,6 @@ const LoginForm = () => {
         const user = await login({ username, password });
 
         if (user) {
-            message.textContent = `Welcome, ${user.username}!`;
             window.location.reload();
         } else {
             message.textContent = "Invalid credentials";

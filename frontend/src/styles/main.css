@@ -16,6 +16,7 @@ body {
 button {
   padding: 8px 12px;
   border-radius: 5px;
+  cursor: pointer;
 }
 
 .container {
@@ -36,4 +37,6 @@ button {
   clear: both;
 }
 
-
+.error-message {
+  color: red;
+}

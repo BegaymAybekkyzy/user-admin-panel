@@ -1,5 +1,5 @@
 import kyAPI from "../utils/kyApi.js";
-
+import {API_BASE_URL} from "../utils/globalConstants.js";
 
 export const login = async ({ username, password }) => {
     try {
@@ -28,14 +28,12 @@ export const logout = async () => {
 };
 
 export const refreshAccessToken = async () => {
-    try {
-        const res = await kyAPI.post("users/refresh");
-        if (!res.ok) return null;
+    const res = await fetch(`${API_BASE_URL}users/refresh`, {
+        method: "POST",
+        credentials: "include",
+    });
 
-        const { accessToken } = await res.json();
-        return accessToken;
-    } catch (err) {
-        console.error("Refresh token error:", err);
-        return null;
-    }
+    if (!res.ok) return null;
+    const { accessToken } = await res.json();
+    return accessToken;
 };
