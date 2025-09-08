@@ -1,5 +1,6 @@
 import mysqlDb from '../db/mysqlDb.js';
 import { hashPassword } from '../utils/password.js';
+import { validateBirthdate } from '../utils/validateDate.js';
 
 export const getUsers = async (req, res, next) => {
   try {
@@ -18,7 +19,7 @@ export const getUsers = async (req, res, next) => {
     const limitNum = parseInt(limit, 10) || 10;
     const offset = (pageNum - 1) * limitNum;
 
-    let where = 'WHERE 1=1';
+    let where = 'WHERE role != "admin"';
     const params = [];
 
     if (username) {
@@ -34,7 +35,7 @@ export const getUsers = async (req, res, next) => {
       params.push(birthdate);
     }
 
-    const allowedSortFields = ['username', 'first_name', 'birthdate', 'role'];
+    const allowedSortFields = ['username', 'first_name', 'birthdate'];
     const allowedOrders = ['asc', 'desc'];
 
     const sortField = allowedSortFields.includes(sortBy)
@@ -45,7 +46,7 @@ export const getUsers = async (req, res, next) => {
       : 'ASC';
 
     const [rows] = await pool.query(
-      `SELECT id, username, first_name, role, birthdate
+      `SELECT id, username, first_name, birthdate
            FROM users
                     ${where}
            ORDER BY ${sortField} ${sortOrder}
@@ -121,31 +122,10 @@ export const addUser = async (req, res, next) => {
     }
 
     if (birthdate) {
-      const regex = /^\d{4}-\d{2}-\d{2}$/;
-      if (!regex.test(birthdate)) {
-        res
-          .status(400)
-          .send({ error: 'Invalid birthdate format (expected YYYY-MM-DD)' });
-        return;
-      }
-
-      const date = new Date(birthdate);
-      if (isNaN(date.getTime())) {
-        res.send(400).send({ error: 'Invalid birthdate value' });
-        return;
-      }
-
-      const today = new Date();
-      const minDate = new Date('1900-01-01');
-
-      if (date > today) {
-        res.status(400).send({ error: 'Birthdate cannot be in the future' });
-        return;
-      }
-
-      if (date < minDate) {
-        res.status(400).send({ error: 'Birthdate is too old (before 1900)' });
-        return;
+      try {
+        validateBirthdate(birthdate);
+      } catch (err) {
+        return res.status(400).send({ error: err.message });
       }
     }
 
@@ -177,22 +157,44 @@ export const addUser = async (req, res, next) => {
 
 export const updateUser = async (req, res, next) => {
   try {
-    const id = req.params.id;
-    const { firstName, lastName, gender, birthdate, role } = req.body;
+    const id = parseInt(req.params.id, 10);
+    const { firstName, lastName, gender, birthdate, role, username, password } =
+      req.body;
 
     const pool = await mysqlDb.getConnection();
 
     const [existing] = await pool.query(
-      'SELECT id FROM users WHERE id = ? LIMIT 1',
+      'SELECT id, role FROM users WHERE id = ? LIMIT 1',
       [id],
     );
 
     if (existing.length === 0) {
-      res.status(404).send({ error: 'User not found' });
-      return;
+      return res.status(404).send({ error: 'User not found' });
     }
+
+    const targetRole = existing[0].role;
+
+    if (targetRole === 'admin') {
+      return res.status(403).send({ error: 'You cannot modify another admin' });
+    }
+
+    if (username !== undefined || password !== undefined) {
+      return res
+        .status(400)
+        .send({ error: 'Username and password cannot be changed' });
+    }
+
+    let safeBirthdate = null;
+    if (birthdate) {
+      try {
+        safeBirthdate = validateBirthdate(birthdate);
+      } catch (err) {
+        return res.status(400).send({ error: err.message });
+      }
+    }
+
     await pool.query(
-      `UPDATE users 
+      `UPDATE users
        SET first_name = COALESCE(?, first_name),
            last_name = COALESCE(?, last_name),
            gender = COALESCE(?, gender),
@@ -203,7 +205,7 @@ export const updateUser = async (req, res, next) => {
         firstName || null,
         lastName || null,
         gender || null,
-        birthdate || null,
+        safeBirthdate,
         role || null,
         id,
       ],
@@ -215,18 +217,95 @@ export const updateUser = async (req, res, next) => {
   }
 };
 
-export const deleteUser = async (req, res, next) => {
+export const updateUserSelf = async (req, res, next) => {
   try {
-    const id = req.params.id;
+    const id = parseInt(req.user.id, 10);
+    const { firstName, lastName, gender, birthdate, username, password } =
+      req.body;
+
     const pool = await mysqlDb.getConnection();
 
-    const [result] = await pool.query('DELETE FROM users WHERE id = ?', [id]);
+    const [existing] = await pool.query(
+      'SELECT id, role FROM users WHERE id = ? LIMIT 1',
+      [id],
+    );
 
-    if (result.affectedRows === 0) {
-      res.status(404).send({ error: 'User not found' });
-      return;
+    if (existing.length === 0) {
+      return res.status(404).send({ error: 'User not found' });
+    }
+    let safeBirthdate = null;
+    if (birthdate) {
+      try {
+        safeBirthdate = validateBirthdate(birthdate);
+      } catch (err) {
+        return res.status(400).send({ error: err.message });
+      }
     }
 
+    let passwordHash = null;
+    if (password) {
+      passwordHash = await hashPassword(password);
+    }
+
+    await pool.query(
+      `UPDATE users
+         SET first_name = COALESCE(?, first_name),
+             last_name = COALESCE(?, last_name),
+             gender = COALESCE(?, gender),
+             birthdate = COALESCE(?, birthdate),
+             username = COALESCE(?, username),
+             password = COALESCE(?, password)
+         WHERE id = ?`,
+      [
+        firstName || null,
+        lastName || null,
+        gender || null,
+        username || null,
+        passwordHash || null,
+        id,
+        safeBirthdate,
+      ],
+    );
+
+    res.send({ message: 'Profile updated' });
+  } catch (error) {
+    next(error);
+  }
+};
+
+export const deleteUser = async (req, res, next) => {
+  try {
+    const id = parseInt(req.params.id, 10);
+    const currentUser = req.user;
+
+    const pool = await mysqlDb.getConnection();
+    const [target] = await pool.query(
+      'SELECT id, role FROM users WHERE id = ? LIMIT 1',
+      [id],
+    );
+
+    if (target.length === 0) {
+      return res.status(404).send({ error: 'User not found' });
+    }
+
+    const targetUser = target[0];
+    if (targetUser.role === 'admin' && targetUser.id !== currentUser.id) {
+      return res.status(403).send({ error: 'You cannot delete another admin' });
+    }
+
+    if (targetUser.role === 'admin' && targetUser.id === currentUser.id) {
+      const [countAdmins] = await pool.query(
+        'SELECT COUNT(*) as adminsCount FROM users WHERE role = "admin"',
+      );
+
+      if (countAdmins[0].adminsCount <= 1) {
+        return res
+          .status(400)
+          .send({ error: 'You cannot delete the last admin account' });
+      }
+    }
+
+    await pool.query('DELETE FROM users WHERE id = ?', [id]);
     res.send({ message: 'User deleted' });
   } catch (error) {
     next(error);

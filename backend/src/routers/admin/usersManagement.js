@@ -5,6 +5,7 @@ import {
   getUserById,
   getUsers,
   updateUser,
+  updateUserSelf,
 } from '../../controllers/usersManagement.js';
 
 const usersManagementRouter = express.Router();
@@ -12,7 +13,8 @@ const usersManagementRouter = express.Router();
 usersManagementRouter.get('/', getUsers);
 usersManagementRouter.get('/:id', getUserById);
 usersManagementRouter.post('/add-user', addUser);
-usersManagementRouter.put('/:id', updateUser);
+usersManagementRouter.put('/update-user/:id', updateUser);
+usersManagementRouter.put('/update-self/:id', updateUserSelf);
 usersManagementRouter.delete('/:id', deleteUser);
 
 export default usersManagementRouter;

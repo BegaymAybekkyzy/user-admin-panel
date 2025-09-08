@@ -5,6 +5,6 @@ const userRouter = express.Router();
 
 userRouter.post('/login', login);
 userRouter.delete('/logout', logout);
-userRouter.delete('/refresh', refresh);
+userRouter.post('/refresh', refresh);
 
 export default userRouter;
