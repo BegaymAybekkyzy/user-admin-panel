@@ -1,4 +1,4 @@
-import { fetchUsers } from "../../../actions/admins/usersManagement.js";
+import {fetchUsers} from "../../../actions/admins/usersManagement.js";
 import Filters from "./Filters.js";
 import Table from "./Table.js";
 import Pagination from "./Pagination.js";
@@ -32,9 +32,6 @@ const UserTable = () => {
         },
         () => {
             void loadData();
-        },
-        user => {
-            console.log("delete user", user);
         }
     );
 

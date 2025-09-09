@@ -1,24 +1,30 @@
-.edit-user-form {
+.user-form {
     display: flex;
     flex-direction: column;
     gap: 12px;
     padding: 10px;
 }
 
-.edit-user-form label {
+.user-form label {
     display: flex;
     flex-direction: column;
     font-weight: 500;
     font-size: 14px;
 }
 
-.edit-user-form input,
-.edit-user-form select {
+.user-form input,
+.user-form select {
     padding: 6px;
     font-size: 14px;
     margin-top: 4px;
     border: 1px solid #ccc;
     border-radius: 4px;
+}
+
+.user-form label {
+    display: flex;
+    flex-direction: column;
+    margin-bottom: 12px;
 }
 
 .form-actions {

@@ -36,3 +36,7 @@ button {
   display: table;
   clear: both;
 }
+
+.error {
+  color: #a94442;
+}

@@ -2,6 +2,7 @@ import "./SectionHeader.css";
 import createModal from "../../UI/Modal/Modal.js";
 import UserForm from "../UserForm/UserForm.js";
 import { addUser } from "../../../actions/admins/usersManagement.js";
+import createToast from "../../UI/Toast/Toast.js";
 
 const modal = createModal();
 
@@ -22,21 +23,44 @@ const SectionHeader = (onUserAdded) => {
     button.addEventListener("click", () => {
         modal.show({
             title: "Add User",
-            content: UserForm(
-                {},
-                async (formData) => {
-                    try {
-                        const created = await addUser(formData);
-                        if (created) {
-                            alert("User added!");
-                            modal.hide();
-                            onUserAdded?.();
+            content: (() => {
+                let saveBtn;
+
+                const form = UserForm(
+                    {},
+                    async (formData) => {
+                        try {
+                            saveBtn.disabled = true;
+
+                            const created = await addUser(formData);
+                            if (created) {
+                                createToast("User added!", "success");
+                                modal.hide();
+                                onUserAdded?.();
+                            }
+                        } catch (error) {
+                            let message = "Server error";
+                            if (error.response) {
+                                try {
+                                    const data = await error.response.json();
+                                    message = data.error || message;
+                                } catch {
+                                    message = error.message || message;
+                                }
+                            }
+                            createToast(message, "error");
+                        } finally {
+                            saveBtn.disabled = false;
                         }
-                    } catch (error) {
+                    },
+                    () => modal.hide(),
+                    false
+                );
 
-                    }
+                saveBtn = form.querySelector(".save-btn");
 
-                }, () => modal.hide(), false),
+                return form;
+            })(),
             footerButtons: [],
         });
     });
