@@ -4,17 +4,19 @@ import cors from 'cors';
 import userRouter from './src/routers/users.js';
 import adminRouter from './src/routers/admin/index.js';
 import cookieParser from 'cookie-parser';
+import security from './src/middleware/security.js';
 
 const app = express();
 const port = 8000;
 
 app.use(
   cors({
-    origin: ['http://localhost:5173'],
+    origin: ['http://localhost:5174'],
     credentials: true,
   }),
 );
 
+app.use(security);
 app.use(cookieParser());
 app.use(express.json());
 app.use('/users', userRouter);
