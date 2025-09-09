@@ -1,0 +1,76 @@
+.user-filters {
+    margin-bottom: 10px;
+}
+
+.user-filters input {
+    margin-right: 5px;
+    padding: 5px;
+}
+
+.user-table {
+    width: 100%;
+    border-collapse: collapse;
+    margin-bottom: 10px;
+}
+
+.user-table th,
+.user-table td {
+    border: 1px solid #ccc;
+    padding: 8px;
+    text-align: left;
+}
+
+.user-table th {
+    background-color: #f5f5f5;
+    cursor: pointer;
+}
+
+.user-table tr:nth-child(even) {
+    background-color: #fafafa;
+}
+
+.pagination {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    margin-bottom: 100px;
+}
+
+.pagination button {
+    margin: 0 10px;
+}
+
+.table-actions {
+    display: flex;
+    justify-content: center;
+    gap: 10px;
+    text-align: center;
+}
+
+.user-table button {
+    background: none;
+    border: none;
+    font-size: 1.4rem;
+    transition: background 0.2s, transform 0.1s;
+}
+
+.user-table button:hover {
+    background: rgba(0, 0, 0, 0.05);
+    transform: scale(1.1);
+}
+
+.user-table .edit-btn {
+    color: #007bff;
+}
+
+.user-table .delete-btn {
+    color: #dc3545;
+}
+
+.user-table .edit-btn:hover {
+    background: rgba(0, 123, 255, 0.1);
+}
+
+.user-table .delete-btn:hover {
+    background: rgba(220, 53, 69, 0.1);
+}

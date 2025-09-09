@@ -1,6 +1,6 @@
-import Header from "./components/Header/Header.js";
-import LoginForm from "./components/LoginForm/LoginForm.js";
-import UserTable from "./components/UserTable/UserTable.js";
+import Header from "./components/shared/Header/Header.js";
+import LoginForm from "./components/shared/LoginForm/LoginForm.js";
+import UserTable from "./components/shared/UserTable/UserTable.js";
 
 const app = document.getElementById("app");
 const user = JSON.parse(localStorage.getItem("user"));

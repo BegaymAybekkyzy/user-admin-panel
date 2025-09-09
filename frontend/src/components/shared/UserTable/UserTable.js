@@ -1,4 +1,4 @@
-import { fetchUsers } from "../../actions/admins/usersManagement.js";
+import { fetchUsers } from "../../../actions/admins/usersManagement.js";
 import Filters from "./Filters.js";
 import Table from "./Table.js";
 import Pagination from "./Pagination.js";
