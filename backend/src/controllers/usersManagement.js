@@ -46,7 +46,7 @@ export const getUsers = async (req, res, next) => {
       : 'ASC';
 
     const [rows] = await pool.query(
-      `SELECT id, username, first_name, birthdate
+      `SELECT id, username, first_name, last_name
            FROM users
                     ${where}
            ORDER BY ${sortField} ${sortOrder}
@@ -83,7 +83,7 @@ export const getUserById = async (req, res, next) => {
     const pool = await mysqlDb.getConnection();
 
     const [rows] = await pool.query(
-      'SELECT id, username, first_name, last_name, role FROM users WHERE id = ? LIMIT 1',
+      'SELECT id, username, birthdate, first_name, last_name, role, gender FROM users WHERE id = ? LIMIT 1',
       [id],
     );
 
@@ -217,96 +217,35 @@ export const updateUser = async (req, res, next) => {
   }
 };
 
-export const updateUserSelf = async (req, res, next) => {
-  try {
-    const id = parseInt(req.user.id, 10);
-    const { firstName, lastName, gender, birthdate, username, password } =
-      req.body;
-
-    const pool = await mysqlDb.getConnection();
-
-    const [existing] = await pool.query(
-      'SELECT id, role FROM users WHERE id = ? LIMIT 1',
-      [id],
-    );
-
-    if (existing.length === 0) {
-      return res.status(404).send({ error: 'User not found' });
-    }
-    let safeBirthdate = null;
-    if (birthdate) {
-      try {
-        safeBirthdate = validateBirthdate(birthdate);
-      } catch (err) {
-        return res.status(400).send({ error: err.message });
-      }
-    }
-
-    let passwordHash = null;
-    if (password) {
-      passwordHash = await hashPassword(password);
-    }
-
-    await pool.query(
-      `UPDATE users
-         SET first_name = COALESCE(?, first_name),
-             last_name = COALESCE(?, last_name),
-             gender = COALESCE(?, gender),
-             birthdate = COALESCE(?, birthdate),
-             username = COALESCE(?, username),
-             password = COALESCE(?, password)
-         WHERE id = ?`,
-      [
-        firstName || null,
-        lastName || null,
-        gender || null,
-        username || null,
-        passwordHash || null,
-        id,
-        safeBirthdate,
-      ],
-    );
-
-    res.send({ message: 'Profile updated' });
-  } catch (error) {
-    next(error);
-  }
-};
-
 export const deleteUser = async (req, res, next) => {
   try {
-    const id = parseInt(req.params.id, 10);
+    const targetId = parseInt(req.params.id, 10);
     const currentUser = req.user;
 
     const pool = await mysqlDb.getConnection();
-    const [target] = await pool.query(
+    const [rows] = await pool.query(
       'SELECT id, role FROM users WHERE id = ? LIMIT 1',
-      [id],
+      [targetId],
     );
 
-    if (target.length === 0) {
+    if (rows.length === 0) {
       return res.status(404).send({ error: 'User not found' });
     }
 
-    const targetUser = target[0];
-    if (targetUser.role === 'admin' && targetUser.id !== currentUser.id) {
+    const target = rows[0];
+
+    if (target.role === 'admin') {
       return res.status(403).send({ error: 'You cannot delete another admin' });
     }
 
-    if (targetUser.role === 'admin' && targetUser.id === currentUser.id) {
-      const [countAdmins] = await pool.query(
-        'SELECT COUNT(*) as adminsCount FROM users WHERE role = "admin"',
-      );
-
-      if (countAdmins[0].adminsCount <= 1) {
-        return res
-          .status(400)
-          .send({ error: 'You cannot delete the last admin account' });
-      }
+    if (target.id === currentUser.id) {
+      return res
+        .status(403)
+        .send({ error: 'Use /users/self for self deletion' });
     }
 
-    await pool.query('DELETE FROM users WHERE id = ?', [id]);
-    res.send({ message: 'User deleted' });
+    await pool.query('DELETE FROM users WHERE id = ?', [targetId]);
+    res.send({ message: 'User deleted by admin' });
   } catch (error) {
     next(error);
   }

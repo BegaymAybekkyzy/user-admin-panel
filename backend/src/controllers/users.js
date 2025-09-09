@@ -2,7 +2,8 @@ import jwt from 'jsonwebtoken';
 import config, { REFRESH_EXPIRES_IN_DAYS } from '../../config.js';
 import mysqlDb from '../db/mysqlDb.js';
 import { generateAccessToken, generateRefreshToken } from '../utils/token.js';
-import { verifyPassword } from '../utils/password.js';
+import { hashPassword, verifyPassword } from '../utils/password.js';
+import { validateBirthdate } from '../utils/validateDate.js';
 
 export const login = async (req, res, next) => {
   try {
@@ -47,7 +48,6 @@ export const login = async (req, res, next) => {
     );
 
     const safeUser = {
-      username: user.username,
       role: user.role,
       first_name: user.first_name,
     };
@@ -126,6 +126,132 @@ export const logout = async (req, res, next) => {
     );
 
     res.send({ message: 'You have successfully logged out of the system.' });
+  } catch (error) {
+    next(error);
+  }
+};
+
+export const updateUserSelf = async (req, res, next) => {
+  try {
+    const id = parseInt(req.user.id, 10);
+    const {
+      firstName,
+      lastName,
+      gender,
+      birthdate,
+      username,
+      password,
+      currentPassword,
+    } = req.body;
+
+    const pool = await mysqlDb.getConnection();
+    const [existing] = await pool.query(
+      'SELECT id, password FROM users WHERE id = ? LIMIT 1',
+      [id],
+    );
+
+    if (existing.length === 0) {
+      res.status(404).send({ error: 'User not found' });
+      return;
+    }
+
+    const user = existing[0];
+
+    let passwordHash = null;
+    if (password) {
+      if (!currentPassword) {
+        res
+          .status(400)
+          .send({ error: 'Current password is required to change password' });
+        return;
+      }
+
+      const isMatch = await verifyPassword(currentPassword, user.password);
+      if (!isMatch) {
+        res.status(403).send({ error: 'Current password is incorrect' });
+        return;
+      }
+
+      passwordHash = await hashPassword(password);
+    }
+
+    let safeBirthdate = null;
+    if (birthdate) {
+      try {
+        safeBirthdate = validateBirthdate(birthdate);
+      } catch (err) {
+        return res.status(400).send({ error: err.message });
+      }
+    }
+
+    await pool.query(
+      `UPDATE users
+         SET first_name = COALESCE(?, first_name),
+             last_name = COALESCE(?, last_name),
+             gender = COALESCE(?, gender),
+             birthdate = COALESCE(?, birthdate),
+             username = COALESCE(?, username),
+             password = COALESCE(?, password)
+         WHERE id = ?`,
+      [
+        firstName || null,
+        lastName || null,
+        gender || null,
+        safeBirthdate || null,
+        username || null,
+        passwordHash || null,
+        id,
+      ],
+    );
+
+    res.send({ message: 'Profile updated' });
+  } catch (error) {
+    next(error);
+  }
+};
+
+export const deleteUserSelf = async (req, res, next) => {
+  try {
+    const id = req.user.id;
+    const { currentPassword } = req.body;
+
+    const pool = await mysqlDb.getConnection();
+    const [rows] = await pool.query(
+      'SELECT id, role, password FROM users WHERE id = ? LIMIT 1',
+      [id],
+    );
+
+    if (rows.length === 0) {
+      return res.status(404).send({ error: 'User not found' });
+    }
+
+    const user = rows[0];
+
+    if (!currentPassword) {
+      return res
+        .status(400)
+        .send({ error: 'Current password is required to delete account' });
+    }
+
+    const isMatch = await verifyPassword(currentPassword, user.password);
+    if (!isMatch) {
+      return res.status(403).send({ error: 'Current password is incorrect' });
+    }
+
+    if (user.role === 'admin') {
+      const [countAdmins] = await pool.query(
+        'SELECT COUNT(*) as adminsCount FROM users WHERE role = "admin"',
+      );
+
+      if (countAdmins[0].adminsCount <= 1) {
+        return res
+          .status(400)
+          .send({ error: 'You cannot delete the last admin account' });
+      }
+    }
+
+    await pool.query('DELETE FROM users WHERE id = ?', [id]);
+    res.send({ message: 'Your account has been deleted' });
   } catch (error) {
     next(error);
   }
