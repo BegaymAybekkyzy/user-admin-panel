@@ -3,7 +3,7 @@ import dayjs from "dayjs";
 import createModal from "../../UI/Modal/Modal.js";
 import {getUserById, updateUser} from "../../../actions/admins/usersManagement.js";
 import UserDetails from "./UserDetail.js";
-import EditUserForm from "../EditUserForm/EditUserForm.js";
+import EditUserForm from "../UserForm/UserForm.js";
 
 const modal = createModal();
 
@@ -62,7 +62,7 @@ const Table = (onSort, onEdit, onDelete) => {
                             modal.hide();
                             onEdit();
                         }
-                    }, () => modal.hide()),
+                    }, () => modal.hide(), true),
                     footerButtons: []
                 });
             });

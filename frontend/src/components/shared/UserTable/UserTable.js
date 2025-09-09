@@ -3,6 +3,7 @@ import Filters from "./Filters.js";
 import Table from "./Table.js";
 import Pagination from "./Pagination.js";
 import "./UserTable.css";
+import ErrorMessage from "../../UI/ErrorMessage/ErrorMessage.js";
 
 const UserTable = () => {
     const wrapper = document.createElement("section");
@@ -16,8 +17,7 @@ const UserTable = () => {
     let totalPages = 1;
     let totalItems = 0;
 
-    const errorBox = document.createElement("div");
-    errorBox.classList.add("error-message", "hidden");
+    const { box: errorBox, show, hide } = ErrorMessage();
     wrapper.appendChild(errorBox);
 
     const { table, updateRows } = Table(
@@ -38,7 +38,6 @@ const UserTable = () => {
         }
     );
 
-
     const filtersComp = Filters(newFilters => {
         filters = newFilters;
         page = 1;
@@ -57,14 +56,13 @@ const UserTable = () => {
     });
 
     const showError = (message) => {
-        errorBox.textContent = `Error: ${message}`;
-        errorBox.classList.remove("hidden");
+        show(message);
         table.classList.add("hidden");
         pagination.classList.add("hidden");
     };
 
     const hideError = () => {
-        errorBox.classList.add("hidden");
+        hide();
         table.classList.remove("hidden");
         pagination.classList.remove("hidden");
     };

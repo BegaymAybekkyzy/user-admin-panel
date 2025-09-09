@@ -36,7 +36,3 @@ button {
   display: table;
   clear: both;
 }
-
-.error-message {
-  color: red;
-}

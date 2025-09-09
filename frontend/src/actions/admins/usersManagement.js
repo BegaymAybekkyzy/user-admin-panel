@@ -28,13 +28,9 @@ export const getUserById = async (id) => {
 };
 
 export const addUser = async (userData) => {
-    try {
-        const res = await kyAPI.post("admins/users-management/add-user", {json: userData});
-        return await res.json();
-    } catch (err) {
-        console.error(err);
-        return null;
-    }
+    const res = await kyAPI.post("admins/users-management/add-user",
+        {json: userData});
+    return await res.json();
 };
 
 export const updateUser = async (id, userData) => {
