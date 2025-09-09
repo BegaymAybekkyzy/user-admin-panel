@@ -166,7 +166,7 @@ export const updateUserSelf = async (req, res, next) => {
         return;
       }
 
-      const isMatch = await verifyPassword(currentPassword, user.password);
+      const isMatch = await verifyPassword(user.password, currentPassword);
       if (!isMatch) {
         res.status(403).send({ error: 'Current password is incorrect' });
         return;
@@ -207,6 +207,27 @@ export const updateUserSelf = async (req, res, next) => {
     res.send({ message: 'Profile updated' });
   } catch (error) {
     next(error);
+  }
+};
+
+export const getUserSelf = async (req, res, next) => {
+  try {
+    const id = parseInt(req.user.id, 10);
+
+    const pool = await mysqlDb.getConnection();
+    const [rows] = await pool.query(
+      `SELECT id, first_name, last_name, username, gender, birthdate
+       FROM users WHERE id = ? LIMIT 1`,
+      [id],
+    );
+
+    if (rows.length === 0) {
+      return res.status(404).send({ error: 'User not found' });
+    }
+
+    res.send(rows[0]);
+  } catch (err) {
+    next(err);
   }
 };
 
