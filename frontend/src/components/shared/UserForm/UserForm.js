@@ -13,65 +13,81 @@ const UserForm = (user, onSubmit, onCancel, isEdit = false) => {
     return `${year}-${month}-${day}`;
   };
 
-  const makeField = (label, inputHtml, name) => `
-      <label>
-        ${label}
-        ${inputHtml}
-        <div class="error" data-error-for="${name}"></div>
-      </label>
-    `;
+  const makeField = (labelText, inputEl, name) => {
+    const label = document.createElement("label");
 
-  form.innerHTML = `
-      ${
-        !isEdit
-          ? `
-        ${makeField(
-          "Username:",
-          `<input type="text" name="username" value="${user.username || ""}" />`,
-          "username",
-        )}
-        
-        ${makeField(
-          "Password:",
-          `<input type="password" name="password" />`,
-          "password",
-        )}
-      `
-          : ""
-      }
+    const textNode = document.createTextNode(labelText);
+    label.appendChild(textNode);
+    label.appendChild(inputEl);
 
-      ${makeField(
-        "First Name:",
-        `<input type="text" name="firstName" value="${user.first_name || ""}" />`,
-        "firstName",
-      )}
+    const errorDiv = document.createElement("div");
+    errorDiv.className = "error";
+    errorDiv.dataset.errorFor = name;
+    label.appendChild(errorDiv);
 
-      ${makeField(
-        "Last Name:",
-        `<input type="text" name="lastName" value="${user.last_name || ""}" />`,
-        "lastName",
-      )}
+    return label;
+  };
 
-      ${makeField(
-        "Gender:",
-        `<select name="gender">
-          <option value="male" ${user.gender === "male" ? "selected" : ""}>Male</option>
-          <option value="female" ${user.gender === "female" ? "selected" : ""}>Female</option>
-        </select>`,
-        "gender",
-      )}
+  if (!isEdit) {
 
-      ${makeField(
-        "Birthdate:",
-        `<input type="date" name="birthdate" value="${formatDateForInput(user.birthdate)}" />`,
-        "birthdate",
-      )}
+    const usernameInput = document.createElement("input");
+    usernameInput.type = "text";
+    usernameInput.name = "username";
+    usernameInput.value = user.username || "";
+    form.appendChild(makeField("Username:", usernameInput, "username"));
 
-      <div class="form-actions">
-        <button type="submit" class="save-btn">${isEdit ? "Save" : "Create"}</button>
-        <button type="button" class="cancel-btn">Cancel</button>
-      </div>
-    `;
+    const passwordInput = document.createElement("input");
+    passwordInput.type = "password";
+    passwordInput.name = "password";
+    form.appendChild(makeField("Password:", passwordInput, "password"));
+  }
+
+  const firstNameInput = document.createElement("input");
+  firstNameInput.type = "text";
+  firstNameInput.name = "firstName";
+  firstNameInput.value = user.first_name || "";
+  form.appendChild(makeField("First Name:", firstNameInput, "firstName"));
+
+  const lastNameInput = document.createElement("input");
+  lastNameInput.type = "text";
+  lastNameInput.name = "lastName";
+  lastNameInput.value = user.last_name || "";
+  form.appendChild(makeField("Last Name:", lastNameInput, "lastName"));
+
+  const genderSelect = document.createElement("select");
+  genderSelect.name = "gender";
+
+  ["male", "female"].forEach((g) => {
+    const option = document.createElement("option");
+    option.value = g;
+    option.textContent = g.charAt(0).toUpperCase() + g.slice(1);
+    if (user.gender === g) option.selected = true;
+    genderSelect.appendChild(option);
+  });
+  form.appendChild(makeField("Gender:", genderSelect, "gender"));
+
+  const birthdateInput = document.createElement("input");
+  birthdateInput.type = "date";
+  birthdateInput.name = "birthdate";
+  birthdateInput.value = formatDateForInput(user.birthdate);
+  form.appendChild(makeField("Birthdate:", birthdateInput, "birthdate"));
+
+  const actions = document.createElement("div");
+  actions.className = "form-actions";
+
+  const saveBtn = document.createElement("button");
+  saveBtn.type = "submit";
+  saveBtn.className = "save-btn";
+  saveBtn.textContent = isEdit ? "Save" : "Create";
+
+  const cancelBtn = document.createElement("button");
+  cancelBtn.type = "button";
+  cancelBtn.className = "cancel-btn";
+  cancelBtn.textContent = "Cancel";
+
+  actions.appendChild(saveBtn);
+  actions.appendChild(cancelBtn);
+  form.appendChild(actions);
 
   const showError = (name, message) => {
     const errorDiv = form.querySelector(`[data-error-for="${name}"]`);
@@ -139,7 +155,7 @@ const UserForm = (user, onSubmit, onCancel, isEdit = false) => {
     onSubmit(data);
   });
 
-  form.querySelector(".cancel-btn").addEventListener("click", onCancel);
+  cancelBtn.addEventListener("click", onCancel);
 
   return form;
 };

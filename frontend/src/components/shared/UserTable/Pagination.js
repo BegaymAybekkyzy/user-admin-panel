@@ -1,22 +1,20 @@
-import "./UserTable.css";
-
 const Pagination = (onChangePage) => {
   const div = document.createElement("div");
   div.className = "pagination";
 
   div.innerHTML = `
-        <span id="totalItems"></span>
-        <div>
-            <button id="prevPage" class="btn-outline">prev</button>
-            <span id="pageInfo"></span>
-            <button id="nextPage" class="btn-outline">next</button>
-        </div>
-    `;
+    <span class="total-items"></span>
+    <div>
+      <button type="button" class="btn-outline prev-page">prev</button>
+      <span class="page-info"></span>
+      <button type="button" class="btn-outline next-page">next</button>
+    </div>
+  `;
 
-  const totalItemsSpan = div.querySelector("#totalItems");
-  const prevBtn = div.querySelector("#prevPage");
-  const nextBtn = div.querySelector("#nextPage");
-  const pageInfo = div.querySelector("#pageInfo");
+  const totalItemsSpan = div.querySelector(".total-items");
+  const prevBtn = div.querySelector(".prev-page");
+  const nextBtn = div.querySelector(".next-page");
+  const pageInfo = div.querySelector(".page-info");
 
   prevBtn.addEventListener("click", () => onChangePage("prev"));
   nextBtn.addEventListener("click", () => onChangePage("next"));

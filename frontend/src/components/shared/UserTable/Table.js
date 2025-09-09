@@ -43,15 +43,15 @@ const Table = (onSort, onEdit) => {
     data.forEach((user, index) => {
       const tr = document.createElement("tr");
       tr.innerHTML = `
-               <td data-clickable="true">${user.index ?? index + 1}</td>
-               <td data-clickable="true">${user.username}</td>
-               <td data-clickable="true">${user.first_name}</td>
-               <td data-clickable="true">${user.last_name ? user.last_name : "-"}</td>
-                <td class="table-actions">
-                    <button id="edit-btn" class="btn-primary">&#9998;</button>
-                    <button id="delete-btn" class="btn-danger">&#10006;</button>
-                </td>
-            `;
+      <td data-clickable="true">${user.index ?? index + 1}</td>
+      <td data-clickable="true">${user.username}</td>
+      <td data-clickable="true">${user.first_name}</td>
+      <td data-clickable="true">${user.last_name ? user.last_name : "-"}</td>
+      <td class="table-actions">
+        <button class="btn-primary edit-btn">&#9998;</button>
+        <button class="btn-danger delete-btn">&#10006;</button>
+      </td>
+    `;
 
       tr.querySelectorAll("td:not(.table-actions)").forEach((td) => {
         if (!td.dataset.tooltip) {
@@ -59,72 +59,26 @@ const Table = (onSort, onEdit) => {
           td.dataset.tooltip = "true";
         }
       });
-      tr.querySelector("#edit-btn").addEventListener("click", async (e) => {
-        e.stopPropagation();
 
-        const details = await getUserById(user.id);
-        if (!details) return;
+      const editBtn = tr.querySelector(".edit-btn");
+      if (editBtn) {
+        editBtn.addEventListener("click", async (e) => {
+          e.stopPropagation();
+          const details = await getUserById(user.id);
+          if (!details) return;
 
-        let saveBtn;
-
-        const form = EditUserForm(
-          details,
-          async (formData) => {
-            try {
-              saveBtn.disabled = true;
-
-              const updated = await updateUser(user.id, formData);
-              if (updated) {
-                createToast("User updated", "success");
-                modal.hide();
-                onEdit();
-              }
-            } catch (error) {
-              let message = "Server error";
-              if (error.response) {
+          let saveBtn;
+          const form = EditUserForm(
+              details,
+              async (formData) => {
                 try {
-                  const data = await error.response.json();
-                  message = data.error || message;
-                } catch {
-                  message = error.message || message;
-                }
-              }
-              createToast(message, "error");
-            } finally {
-              saveBtn.disabled = false;
-            }
-          },
-          () => modal.hide(),
-          true,
-        );
-
-        saveBtn = form.querySelector(".save-btn");
-
-        modal.show({
-          title: "Edit User",
-          content: form,
-          footerButtons: [],
-        });
-      });
-
-      tr.querySelector("#delete-btn").addEventListener("click", (e) => {
-        e.stopPropagation();
-
-        const content = document.createElement("p");
-        content.textContent = `Are you sure you want to delete user "${user.username}"?`;
-
-        modal.show({
-          title: "Confirm Delete",
-          content,
-          footerButtons: [
-            {
-              label: "Delete",
-              class: "btn-danger",
-              onClick: async () => {
-                try {
-                  await deleteUser(user.id);
-                  createToast("User deleted", "success");
-                  modal.hide();
+                  saveBtn.disabled = true;
+                  const updated = await updateUser(user.id, formData);
+                  if (updated) {
+                    createToast("User updated", "success");
+                    modal.hide();
+                    onEdit();
+                  }
                 } catch (error) {
                   let message = "Server error";
                   if (error.response) {
@@ -136,17 +90,68 @@ const Table = (onSort, onEdit) => {
                     }
                   }
                   createToast(message, "error");
+                } finally {
+                  saveBtn.disabled = false;
                 }
               },
-            },
-            {
-              label: "Cancel",
-              class: "modal-btn cancel-btn",
-              onClick: () => modal.hide(),
-            },
-          ],
+              () => modal.hide(),
+              true,
+          );
+
+          saveBtn = form.querySelector(".save-btn");
+
+          modal.show({
+            title: "Edit User",
+            content: form,
+            footerButtons: [],
+          });
         });
-      });
+      }
+
+      const deleteBtn = tr.querySelector(".delete-btn");
+      if (deleteBtn) {
+        deleteBtn.addEventListener("click", (e) => {
+          e.stopPropagation();
+
+          const content = document.createElement("p");
+          content.textContent = `Are you sure you want to delete user "${user.username}"?`;
+
+          modal.show({
+            title: "Confirm Delete",
+            content,
+            footerButtons: [
+              {
+                label: "Delete",
+                class: "btn-danger",
+                onClick: async () => {
+                  try {
+                    await deleteUser(user.id);
+                    createToast("User deleted", "success");
+                    modal.hide();
+                    onEdit();
+                  } catch (error) {
+                    let message = "Server error";
+                    if (error.response) {
+                      try {
+                        const data = await error.response.json();
+                        message = data.error || message;
+                      } catch {
+                        message = error.message || message;
+                      }
+                    }
+                    createToast(message, "error");
+                  }
+                },
+              },
+              {
+                label: "Cancel",
+                class: "modal-btn cancel-btn",
+                onClick: () => modal.hide(),
+              },
+            ],
+          });
+        });
+      }
 
       tr.querySelectorAll("td:not(.table-actions)").forEach((td) => {
         td.addEventListener("click", async () => {
@@ -170,6 +175,7 @@ const Table = (onSort, onEdit) => {
       tbody.appendChild(tr);
     });
   };
+
 
   return { table, updateRows };
 };
