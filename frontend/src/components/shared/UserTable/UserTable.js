@@ -20,15 +20,24 @@ const UserTable = () => {
     errorBox.classList.add("error-message", "hidden");
     wrapper.appendChild(errorBox);
 
-    const { table, updateRows } = Table(sortField => {
-        if (sortBy === sortField) {
-            order = order === "asc" ? "desc" : "asc";
-        } else {
-            sortBy = sortField;
-            order = "asc";
+    const { table, updateRows } = Table(
+        sortField => {
+            if (sortBy === sortField) {
+                order = order === "asc" ? "desc" : "asc";
+            } else {
+                sortBy = sortField;
+                order = "asc";
+            }
+            void loadData();
+        },
+        () => {
+            void loadData();
+        },
+        user => {
+            console.log("delete user", user);
         }
-        void loadData();
-    });
+    );
+
 
     const filtersComp = Filters(newFilters => {
         filters = newFilters;
@@ -69,6 +78,7 @@ const UserTable = () => {
                 sortBy,
                 order,
             });
+
             if (!response) {
                 showError("No data from the server");
                 return;
