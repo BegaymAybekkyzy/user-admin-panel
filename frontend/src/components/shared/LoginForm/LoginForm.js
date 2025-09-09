@@ -1,5 +1,7 @@
 import { login } from "../../../actions/users.js";
 import "./LoginForm.css";
+import {validateSafeInput} from "../../../utils/forbiddenPatterns.js";
+
 
 const LoginForm = () => {
   const wrapper = document.createElement("div");
@@ -41,16 +43,34 @@ const LoginForm = () => {
 
   form.addEventListener("submit", async (e) => {
     e.preventDefault();
+    message.textContent = ""; // очищаем ошибки
 
     const username = usernameInput.value.trim();
     const password = passwordInput.value.trim();
 
-    const user = await login({ username, password });
+    const usernameCheck = validateSafeInput(username);
+    const passwordCheck = validateSafeInput(password);
 
-    if (user) {
-      window.location.reload();
-    } else {
-      message.textContent = "Invalid credentials";
+    if (!usernameCheck.safe) {
+      message.textContent = usernameCheck.message || "Invalid username";
+      return;
+    }
+    if (!passwordCheck.safe) {
+      message.textContent = passwordCheck.message || "Invalid password";
+      return;
+    }
+
+    try {
+      const user = await login({ username, password });
+
+      if (user) {
+        window.location.reload();
+      } else {
+        message.textContent = "Invalid credentials";
+      }
+    } catch (err) {
+      console.error("Login error:", err);
+      message.textContent = "Something went wrong. Try again later.";
     }
   });
 

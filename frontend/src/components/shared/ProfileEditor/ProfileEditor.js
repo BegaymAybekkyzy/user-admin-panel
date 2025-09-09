@@ -2,6 +2,7 @@ import createModal from "../../UI/Modal/Modal.js";
 import createToast from "../../UI/Toast/Toast.js";
 import "./ProfileEditor.css";
 import { getUserSelf, updateUserSelf } from "../../../actions/users.js";
+import {validateSafeInput} from "../../../utils/forbiddenPatterns.js";
 
 const ProfileEditor = () => {
   const modal = createModal();
@@ -13,40 +14,40 @@ const ProfileEditor = () => {
     form.className = "profile-form";
 
     form.innerHTML = `
-            <label>
-                First Name:
-                <input type="text" name="firstName" value="${user.first_name || ""}">
-            </label>
-            <label>
-                Last Name:
-                <input type="text" name="lastName" value="${user.last_name || ""}">
-            </label>
-            <label>
-                Username:
-                <input type="text" name="username" value="${user.username || ""}">
-            </label>
-            <label>
-                Gender:
-                <select name="gender">
-                    <option value="">Select</option>
-                    <option value="male" ${user.gender === "male" ? "selected" : ""}>Male</option>
-                    <option value="female" ${user.gender === "female" ? "selected" : ""}>Female</option>
-                </select>
-            </label>
-            <label>
-                Birthdate:
-                <input type="date" name="birthdate" value="${user.birthdate ? user.birthdate.split("T")[0] : ""}">
-            </label>
-            <hr>
-            <label>
-                Current Password (required to change password):
-                <input type="password" name="currentPassword">
-            </label>
-            <label>
-                New Password:
-                <input type="password" name="password">
-            </label>
-        `;
+      <label>
+          First Name:
+          <input type="text" name="firstName" value="${user.first_name || ""}">
+      </label>
+      <label>
+          Last Name:
+          <input type="text" name="lastName" value="${user.last_name || ""}">
+      </label>
+      <label>
+          Username:
+          <input type="text" name="username" value="${user.username || ""}">
+      </label>
+      <label>
+          Gender:
+          <select name="gender">
+              <option value="">Select</option>
+              <option value="male" ${user.gender === "male" ? "selected" : ""}>Male</option>
+              <option value="female" ${user.gender === "female" ? "selected" : ""}>Female</option>
+          </select>
+      </label>
+      <label>
+          Birthdate:
+          <input type="date" name="birthdate" value="${user.birthdate ? user.birthdate.split("T")[0] : ""}">
+      </label>
+      <hr>
+      <label>
+          Current Password (required to change password):
+          <input type="password" name="currentPassword">
+      </label>
+      <label>
+          New Password:
+          <input type="password" name="password">
+      </label>
+    `;
 
     modal.show({
       title: "Edit Profile",
@@ -58,6 +59,14 @@ const ProfileEditor = () => {
           onClick: async () => {
             const formData = new FormData(form);
             const userData = Object.fromEntries(formData.entries());
+
+            for (const [key, value] of Object.entries(userData)) {
+              const result = validateSafeInput(value);
+              if (!result.safe) {
+                createToast(`${key}: ${result.message}`, "error");
+                return;
+              }
+            }
 
             try {
               await updateUserSelf(userData);

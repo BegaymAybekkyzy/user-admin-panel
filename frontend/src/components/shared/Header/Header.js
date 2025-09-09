@@ -115,8 +115,8 @@ const Header = () => {
   });
 
   dropdown.appendChild(editItem);
-  dropdown.appendChild(logoutItem);
   dropdown.appendChild(deleteItem);
+  dropdown.appendChild(logoutItem);
 
   userMenu.appendChild(userButton);
   userMenu.appendChild(dropdown);

@@ -1,4 +1,5 @@
 import "./UserForm.css";
+import {validateSafeInput} from "../../../utils/forbiddenPatterns.js";
 
 const UserForm = (user, onSubmit, onCancel, isEdit = false) => {
   const form = document.createElement("form");
@@ -108,6 +109,14 @@ const UserForm = (user, onSubmit, onCancel, isEdit = false) => {
     const data = Object.fromEntries(formData.entries());
 
     let hasErrors = false;
+
+    for (const [key, val] of Object.entries(data)) {
+      const result = validateSafeInput(val);
+      if (!result.safe) {
+        showError(key, result.message);
+        hasErrors = true;
+      }
+    }
 
     if (!isEdit) {
       if (!data.username?.trim()) {
