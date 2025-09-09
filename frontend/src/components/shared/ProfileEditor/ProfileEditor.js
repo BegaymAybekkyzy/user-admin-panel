@@ -1,18 +1,18 @@
 import createModal from "../../UI/Modal/Modal.js";
 import createToast from "../../UI/Toast/Toast.js";
-import "./ProfileEditor.css"
-import {getUserSelf, updateUserSelf} from "../../../actions/users.js";
+import "./ProfileEditor.css";
+import { getUserSelf, updateUserSelf } from "../../../actions/users.js";
 
 const ProfileEditor = () => {
-    const modal = createModal();
+  const modal = createModal();
 
-    const openEditor = async () => {
-        const user = await getUserSelf();
+  const openEditor = async () => {
+    const user = await getUserSelf();
 
-        const form = document.createElement("form");
-        form.className = "profile-form";
+    const form = document.createElement("form");
+    form.className = "profile-form";
 
-        form.innerHTML = `
+    form.innerHTML = `
             <label>
                 First Name:
                 <input type="text" name="firstName" value="${user.first_name || ""}">
@@ -48,55 +48,55 @@ const ProfileEditor = () => {
             </label>
         `;
 
-        modal.show({
-            title: "Edit Profile",
-            content: form,
-            footerButtons: [
-                {
-                    label: "Save",
-                    class: "btn-primary save",
-                    onClick: async () => {
-                        const formData = new FormData(form);
-                        const userData = Object.fromEntries(formData.entries());
+    modal.show({
+      title: "Edit Profile",
+      content: form,
+      footerButtons: [
+        {
+          label: "Save",
+          class: "btn-primary save",
+          onClick: async () => {
+            const formData = new FormData(form);
+            const userData = Object.fromEntries(formData.entries());
 
-                        try {
-                            await updateUserSelf(userData);
-                            createToast("Profile updated successfully!", "success");
+            try {
+              await updateUserSelf(userData);
+              createToast("Profile updated successfully!", "success");
 
-                            const freshUser = await getUserSelf();
-                            const updatedUser = {
-                                id: freshUser.id,
-                                first_name: freshUser.first_name,
-                                role: user.role,
-                            };
-                            localStorage.setItem("user", JSON.stringify(updatedUser));
+              const freshUser = await getUserSelf();
+              const updatedUser = {
+                id: freshUser.id,
+                first_name: freshUser.first_name,
+                role: user.role,
+              };
+              localStorage.setItem("user", JSON.stringify(updatedUser));
 
-                            modal.hide();
-                            window.location.reload();
-                        } catch (err) {
-                            let message = "Failed to update profile";
-                            if (err.response) {
-                                try {
-                                    const data = await err.response.json();
-                                    message = data.error || message;
-                                } catch {
-                                    message = err.message || message;
-                                }
-                            }
-                            createToast(message, "error");
-                        }
-                    },
-                },
-                {
-                    label: "Cancel",
-                    class: "btn-outline cancel",
-                    onClick: () => modal.hide(),
-                },
-            ],
-        });
-    };
+              modal.hide();
+              window.location.reload();
+            } catch (err) {
+              let message = "Failed to update profile";
+              if (err.response) {
+                try {
+                  const data = await err.response.json();
+                  message = data.error || message;
+                } catch {
+                  message = err.message || message;
+                }
+              }
+              createToast(message, "error");
+            }
+          },
+        },
+        {
+          label: "Cancel",
+          class: "btn-outline cancel",
+          onClick: () => modal.hide(),
+        },
+      ],
+    });
+  };
 
-    return { openEditor };
+  return { openEditor };
 };
 
 export default ProfileEditor;

@@ -7,69 +7,65 @@ import createToast from "../../UI/Toast/Toast.js";
 const modal = createModal();
 
 const SectionHeader = (onUserAdded) => {
-    const headerContainer = document.createElement("div");
-    headerContainer.className = "container";
+  const header = document.createElement("div");
+  header.className = "section-header";
 
-    const header = document.createElement("div");
-    header.className = "section-header";
+  const title = document.createElement("h2");
+  title.textContent = "User Management";
 
-    const title = document.createElement("h2");
-    title.textContent = "User Management";
+  const button = document.createElement("button");
+  button.textContent = "Add User";
+  button.className = "btn-primary";
 
-    const button = document.createElement("button");
-    button.textContent = "Add User";
-    button.className = "add-user-btn";
+  button.addEventListener("click", () => {
+    modal.show({
+      title: "Add User",
+      content: (() => {
+        let saveBtn;
 
-    button.addEventListener("click", () => {
-        modal.show({
-            title: "Add User",
-            content: (() => {
-                let saveBtn;
+        const form = UserForm(
+          {},
+          async (formData) => {
+            try {
+              saveBtn.disabled = true;
 
-                const form = UserForm(
-                    {},
-                    async (formData) => {
-                        try {
-                            saveBtn.disabled = true;
+              const created = await addUser(formData);
+              if (created) {
+                createToast("User added!", "success");
+                modal.hide();
+                onUserAdded?.();
+              }
+            } catch (error) {
+              let message = "Server error";
+              if (error.response) {
+                try {
+                  const data = await error.response.json();
+                  message = data.error || message;
+                } catch {
+                  message = error.message || message;
+                }
+              }
+              createToast(message, "error");
+            } finally {
+              saveBtn.disabled = false;
+            }
+          },
+          () => modal.hide(),
+          false,
+        );
 
-                            const created = await addUser(formData);
-                            if (created) {
-                                createToast("User added!", "success");
-                                modal.hide();
-                                onUserAdded?.();
-                            }
-                        } catch (error) {
-                            let message = "Server error";
-                            if (error.response) {
-                                try {
-                                    const data = await error.response.json();
-                                    message = data.error || message;
-                                } catch {
-                                    message = error.message || message;
-                                }
-                            }
-                            createToast(message, "error");
-                        } finally {
-                            saveBtn.disabled = false;
-                        }
-                    },
-                    () => modal.hide(),
-                    false
-                );
+        saveBtn = form.querySelector(".save-btn");
 
-                saveBtn = form.querySelector(".save-btn");
-
-                return form;
-            })(),
-            footerButtons: [],
-        });
+        return form;
+      })(),
+      footerButtons: [],
     });
+  });
 
-    headerContainer.appendChild(header);
-    header.appendChild(title);
-    header.appendChild(button);
+  header.appendChild(title);
+  header.appendChild(button);
 
-    return headerContainer;
+  return header;
 };
 
 export default SectionHeader;

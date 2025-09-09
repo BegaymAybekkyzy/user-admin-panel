@@ -1,10 +1,10 @@
 import dayjs from "dayjs";
 
 const UserDetails = (details) => {
-    const wrapper = document.createElement("div");
-    wrapper.className = "user-details";
+  const wrapper = document.createElement("div");
+  wrapper.className = "user-details";
 
-    wrapper.innerHTML = `
+  wrapper.innerHTML = `
     <p><b>ID:</b> ${details.id}</p>
     <p><b>Username:</b> ${details.username}</p>
     <p><b>First Name:</b> ${details.first_name}</p>
@@ -14,7 +14,7 @@ const UserDetails = (details) => {
     <p><b>Role:</b> ${details.role || "-"}</p>
   `;
 
-    return wrapper;
+  return wrapper;
 };
 
 export default UserDetails;

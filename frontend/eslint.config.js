@@ -14,12 +14,12 @@ export default defineConfig([
     plugins: { js, prettier: pluginPrettier },
     extends: [js.configs.recommended, prettier],
     rules: {
-      'prettier/prettier': [
-        'error',
+      "prettier/prettier": [
+        "error",
         {
           semi: true,
           singleQuote: true,
-          trailingComma: 'all',
+          trailingComma: "all",
           printWidth: 80,
           tabWidth: 2,
         },
@@ -32,10 +32,10 @@ export default defineConfig([
         "error",
         {
           destructuring: "all",
-          ignoreReadBeforeAssign: false
-        }
+          ignoreReadBeforeAssign: false,
+        },
       ],
-      "eqeqeq": ["error", "always"],
+      eqeqeq: ["error", "always"],
       "no-trailing-spaces": "error",
       "keyword-spacing": ["error", { before: true, after: true }],
     },

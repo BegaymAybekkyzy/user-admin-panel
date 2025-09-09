@@ -1,118 +1,91 @@
 .user-filters {
-    margin-bottom: 10px;
-    display: flex;
-    gap: 10px;
-    flex-wrap: wrap;
+  margin-bottom: 10px;
+  display: flex;
+  gap: 10px;
+  flex-wrap: wrap;
 }
 
 .user-filters input {
-    margin-right: 5px;
-    padding: 5px;
+  margin-right: 5px;
+  padding: 5px;
 }
 
 .user-table {
-    width: 100%;
-    border-collapse: collapse;
-    margin-bottom: 10px;
+  width: 100%;
+  border-collapse: collapse;
+  margin-bottom: 10px;
 }
 
 .user-table th:nth-child(3),
 .user-table td:nth-child(3),
 .user-table th:nth-child(4),
 .user-table td:nth-child(4) {
-    display: none;
+  display: none;
 }
 
 .user-table th,
 .user-table td {
-    border: 1px solid #ccc;
-    padding: 8px;
-    text-align: left;
+  border: 1px solid #ccc;
+  padding: 8px;
+  text-align: left;
 }
 
 .user-table th {
-    background-color: #f5f5f5;
+  background-color: #f5f5f5;
 }
 
 .user-table tr {
-    transition: background-color 0.2s ease-in-out;
+  transition: background-color 0.2s ease-in-out;
 }
 
 .user-table tbody tr:hover {
-    background-color: #e3e3e3;
+  background-color: #e3e3e3;
 }
 
 .user-table td[data-clickable="true"],
 .user-table th[data-sort] {
-    cursor: pointer;
+  cursor: pointer;
 }
 
 .user-table tr:nth-child(even) {
-    background-color: #fafafa;
+  background-color: #fafafa;
 }
 
 .pagination {
-    display: flex;
-    flex-wrap: wrap;
-    gap: 15px;
-    justify-content: center;
-    align-items: center;
-    margin-bottom: 100px;
+  display: flex;
+  flex-wrap: wrap;
+  gap: 15px;
+  font-size: 16px;
+  justify-content: center;
+  align-items: center;
+  margin-bottom: 100px;
 }
 
 .pagination button {
-    margin: 0 10px;
+  margin: 0 10px;
 }
 
 .table-actions {
-    display: flex;
-    justify-content: center;
-    gap: 10px;
-    text-align: center;
-}
-
-.user-table button {
-    background: none;
-    border: none;
-    font-size: 1.4rem;
-    transition: background 0.2s, transform 0.1s;
-}
-
-.user-table button:hover {
-    background: rgba(0, 0, 0, 0.05);
-    transform: scale(1.1);
-}
-
-.user-table .edit-btn {
-    color: #007bff;
-}
-
-.user-table .delete-btn {
-    color: #dc3545;
-}
-
-.user-table .edit-btn:hover {
-    background: rgba(0, 123, 255, 0.1);
-}
-
-.user-table .delete-btn:hover {
-    background: rgba(220, 53, 69, 0.1);
+  display: flex;
+  justify-content: center;
+  gap: 10px;
+  text-align: center;
 }
 
 @media (min-width: 600px) {
-    .user-table th:nth-child(3),
-    .user-table td:nth-child(3) {
-        display: table-cell;
-    }
+  .user-table th:nth-child(3),
+  .user-table td:nth-child(3) {
+    display: table-cell;
+  }
 
-    .pagination {
-        justify-content: space-between;
-    }
+  .pagination {
+    justify-content: space-between;
+  }
 }
 
 @media (min-width: 900px) {
-    .user-table th:nth-child(4),
-    .user-table td:nth-child(4) {
-        display: table-cell;
-    }
+  .user-table th:nth-child(4),
+  .user-table td:nth-child(4) {
+    display: table-cell;
+  }
 }
