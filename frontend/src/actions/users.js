@@ -1,14 +1,14 @@
 import kyAPI from "../utils/kyApi.js";
 import {API_BASE_URL} from "../utils/globalConstants.js";
 
-export const login = async ({ username, password }) => {
+export const login = async ({username, password}) => {
     try {
         const res = await kyAPI.post("users/login", {
-            json: { username, password }
+            json: {username, password}
         });
 
-        const { user, accessToken } = await res.json();
-        localStorage.setItem("user", JSON.stringify({ ...user, accessToken }));
+        const {user, accessToken} = await res.json();
+        localStorage.setItem("user", JSON.stringify({...user, accessToken}));
 
         return user;
     } catch (err) {
@@ -18,13 +18,26 @@ export const login = async ({ username, password }) => {
 };
 
 export const logout = async () => {
-    try {
-        await kyAPI.delete("users/logout");
-    } catch (err) {
-        console.error("Logout error:", err);
-    }
-    localStorage.removeItem("user");
+    await kyAPI.delete("users/logout");
     return true;
+};
+
+export const updateUserSelf = async (userData) => {
+    const res = await kyAPI.put("admins/users/me", {
+        json: userData,
+    });
+    return await res.json();
+};
+
+export const getUserSelf = async () => {
+    const res = await kyAPI.get("admins/users/me");
+    return await res.json();
+}
+
+export const deleteUserSelf = async ({ currentPassword }) => {
+    await kyAPI.delete("admins/users/me", {
+        json: {currentPassword}
+    });
 };
 
 export const refreshAccessToken = async () => {
@@ -34,6 +47,6 @@ export const refreshAccessToken = async () => {
     });
 
     if (!res.ok) return null;
-    const { accessToken } = await res.json();
+    const {accessToken} = await res.json();
     return accessToken;
 };
