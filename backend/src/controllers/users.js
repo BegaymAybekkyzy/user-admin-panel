@@ -254,7 +254,7 @@ export const deleteUserSelf = async (req, res, next) => {
         .send({ error: 'Current password is required to delete account' });
     }
 
-    const isMatch = await verifyPassword(currentPassword, user.password);
+    const isMatch = await verifyPassword(user.password, currentPassword);
     if (!isMatch) {
       return res.status(403).send({ error: 'Current password is incorrect' });
     }
