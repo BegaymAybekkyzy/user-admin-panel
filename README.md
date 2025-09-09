@@ -6,6 +6,7 @@ The project implements a REST API on Node.js with a MySQL database.
 - [Technologies](#technologies)
 - [Installation](#installation)
 - [Database setup](#database-setup)
+- [Test Accounts](#test-accounts)
 
 ## Technologies
 **Backend**
@@ -40,5 +41,7 @@ npm run dev
 Import the SQL dump (он уже есть в `backend/src/db/dump.sql`):
    ```bash
   mysql -u root -p admin_panel < src/db/dump.sql
-
    ```
+
+## Test Accounts
+All passwords: 123
